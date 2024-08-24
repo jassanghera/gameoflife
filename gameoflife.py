@@ -28,9 +28,9 @@ def random_state(width, height):
             random_number = random.random()
 
             if random_number >= 0.2:
-                cell_state = " "
+                cell_state = 0
             else:
-                cell_state = '#'
+                cell_state = 1
             
             state[i][j] = cell_state
     
@@ -42,6 +42,7 @@ def render(state):
 
     for i in range(len(state)):
         print(*state[i])
+    print("\n")
 
 
 #def next_board_state(state):
