@@ -1,6 +1,7 @@
 import random
 
-print("hello life")
+print("hello world, i am life")
+print("\n")
 
 # dead_state should accept integer width and height
     #output: 2D grid as list of lists with all entries defaulted to 0
@@ -27,7 +28,7 @@ def random_state(width, height):
 
             random_number = random.random()
 
-            if random_number >= 0.2:
+            if random_number >= 0.5:
                 cell_state = 0
             else:
                 cell_state = 1
@@ -45,15 +46,124 @@ def render(state):
     print("\n")
 
 
-#def next_board_state(state):
-    # To Do: write a function to calculate the next state of the bord given an existing board
+# a function to calculate the next state of the board given an existing board
+def next_board_state(state):
+
+    height = len(state)
+    width = len(state[0])
+
+    new_state = dead_state(width, height)
+
+
+    # iterate over cells, separate cases for edge cells(5 neighbours), corner cells(3 neighbours), and interior cells(8 neighbours)
+    for i in range(height):
+        for j in range(width):
+
+            msg = " "
+            neighbour_count = 0
+
+            # EDGE CELLS (EXCLUDING CORNERS)
+            # case 1: cell in first column, exclude top and bottom left corners
+            if j == 0 and i != 0 and i != height:
+                for x in range(0,1):
+                    for y in range(-1,1):
+                        if state[i+y][j+x] == 1:
+                            neighbour_count += 1
+                            msg = "case 1"
+            
+            # case 2: cell in last column, exclude top and bottom right corners
+            elif j == width and i != 0 and i != height:
+                for x in range(-1,0):
+                    for y in range(-1,1):
+                        if state[i+y][j+x] == 1:
+                            neighbour_count += 1
+            
+            # case 3: cell in first row, exclude top left and right corners
+            elif i == 1 and j != 0 and j != width:
+                for x in range(-1,1):
+                    for y in range(0,1):
+                        if state[i+y][j+x] == 1:
+                            neighbour_count += 1
+
+            # case 4: cell in last row, exclude bottom left and right corners
+            elif i == height and j != 0 and j != width:
+                for x in range(-1,1):
+                    for y in range(-1,0):
+                        if state[i+y][j+x] == 1:
+                            neighbour_count += 1
+
+            # CORNER CELLS
+            # case 5: upper left corner
+            elif i == 0 and j == 0:
+                for x in range(0,1):
+                    for y in range(0,2):
+                        if state[i+y][j+x] == 1:
+                            neighbour_count += 1
+                            msg = "upper left corner"
+            
+            # case 6: upper right corner
+            elif i == 0 and j == width:
+                for x in range(-1,0):
+                    for y in range(0,1):
+                        if state[i+y][j+x] == 1:
+                            neighbour_count += 1
+
+            # case 7: bottom left corner
+            elif i == height and j == 0:
+                for x in range(0,1):
+                    for y in range(-1,0):
+                        if state[i+y][j+x] == 1:
+                            neighbour_count += 1
+
+            # case 8: bottom right corner
+            elif i == height and j == width:
+                for x in range(-1,0):
+                    for y in range(-1,0):
+                        if state[i+y][j+x] == 1:
+                            neighbour_count += 1
+
+            # INTERIOR CELLS
+            # case 9: interior cells
+            else:
+                for x in range(-1,1):
+                    for y in range(-1,1):
+                        if state[i+y][j+x] == 1:
+                            neighbour_count += 1
+            
+            print("Cell " + "(", i, ",", j, ")" + ": ", neighbour_count, ", ", msg)
+
+            if state[i][j] == 1:
+                if neighbour_count < 2:     # live cells with 0 or 1 neighbours die
+                    new_state[i][j] = 0     
+                elif neighbour_count >= 4:  # live cells with more than 3 neighbours die
+                    new_state[i][j] = 0
+            elif state[i][j] == 0:
+                if neighbour_count == 3:    # dead cells with exactly 3 neighbours become alive
+                    new_state[i][j] = 1
+            else:                           # live cells with 2 or 3 neighbours continue to live, dead cells continue to stay dead - new state unchanged
+                new_state[i][j] = state[i][j]
+            
+
+    return render(new_state)
+
+
+
+
 
 
 # FUNCTION CALLS FOR TESTING
 #print(dead_state(4,5))
 #print(random_state(3,4))
 #render(random_state(3,4))
-render(random_state(12,12))
+#render(random_state(12,12))
+
+test_state = random_state(5,5)
+
+print("STATE: ")
+render(test_state)
+print("NEXT STATE: ")
+next_board_state(test_state)
+
 
 # COOL STATES
 
