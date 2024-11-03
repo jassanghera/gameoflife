@@ -1,7 +1,8 @@
 import random
+import time
+import os
 
 print("hello world, i am life")
-print("\n")
 
 # dead_state should accept integer width and height
     #output: 2D grid as list of lists with all entries defaulted to 0
@@ -71,7 +72,6 @@ def next_board_state(state):
                     for y in range(i-1,i+2):
                         if state[y][x] == 1:
                             neighbour_count += 1
-                            msg = "case 1"
             
             # case 2: cell in last column, exclude top and bottom right corners
             elif j == col_index and i != 0 and i != row_index:
@@ -81,7 +81,7 @@ def next_board_state(state):
                             neighbour_count += 1
             
             # case 3: cell in first row, exclude top left and right corners
-            elif i == 1 and j != 0 and j != col_index:
+            elif i == 0 and j != 0 and j != col_index:
                 for x in range(j-1,j+2):
                     for y in range(i,i+2):
                         if state[y][x] == 1:
@@ -135,48 +135,164 @@ def next_board_state(state):
                         if state[y][x] == 1:
                             neighbour_count += 1
             
-            
-            
-            # minus 1 from neighbour count of all lives cells
-            if neighbour_count > 0:
+            # if live cell, subtract it out from the neighbour count
+            if state[i][j] == 1:
                 neighbour_count -= 1
             
-            print("Cell " + "(", i, ",", j, ")" + ": ", neighbour_count, " ", msg)
+            #print("Cell " + "(", i, ",", j, ")" + ": ", neighbour_count, " ", msg)
 
-            # if state[i][j] == 1:
-            #     if neighbour_count < 2:     # live cells with 0 or 1 neighbours die
-            #         new_state[i][j] = 0     
-            #     elif neighbour_count >= 4:  # live cells with more than 3 neighbours die
-            #         new_state[i][j] = 0
-            # elif state[i][j] == 0:
-            #     if neighbour_count == 3:    # dead cells with exactly 3 neighbours become alive
-            #         new_state[i][j] = 1
-            # else:                           # live cells with 2 or 3 neighbours continue to live, dead cells continue to stay dead - new state unchanged
-            #     new_state[i][j] = state[i][j]
+            if state[i][j] == 1:
+                if neighbour_count < 2 or neighbour_count >= 4:     # live cells with 0 or 1 neighbours die
+                    new_state[i][j] = 0                             # # live cells with more than 3 neighbours die    
+                else:
+                    new_state[i][j] = state[i][j]                   # live cells with 2 or 3 neighbours continue to live
+            else:
+                if neighbour_count == 3:                            # dead cells with exactly 3 neighbours become alive
+                    new_state[i][j] = 1
+                else:                                               # all other dead cells continue to stay dead - new state unchanged
+                    new_state[i][j] = state[i][j]
             
+    return new_state
 
-    # return render(new_state)
+# runs infinite loop of states, printing each iteration
+def life(current_state):
+
+    while True:
+        # clear the console for visualization
+        os.system('cls' if os.name == 'nt' else 'clear')
+
+        # print the current state
+        render(current_state)
+
+        # get the next state
+        current_state = next_board_state(current_state)
+
+        # delay for readability
+        #time.sleep(1)
+    
+
+    
 
 
+# UNIT TESTS ---------------------------------------------------------------------------------
 
+# if __name__ == "__main__":
 
+#     # TEST 1: dead cells with no live neighbours should stay dead
+#     init_state1 = [
+#         [0,0,0],
+#         [0,0,0],
+#         [0,0,0]
+#     ]
+#     expected_next_state1 = [
+#         [0,0,0],
+#         [0,0,0],
+#         [0,0,0]
+#     ]
 
+#     actual_next_state1 = next_board_state(init_state1)
 
-# FUNCTION CALLS FOR TESTING
-#print(dead_state(4,5))
-#print(random_state(3,4))
-#render(random_state(3,4))
-#render(random_state(12,12))
+#     if expected_next_state1 == actual_next_state1:
+#         print("PASSED 1")
+#     else:
+#         print("FAILED 1")
+#         print("Expected: ")
+#         print(expected_next_state1)
+#         print("Actual:")
+#         print(actual_next_state1)
 
-test_state = random_state(5,5)
+    
+#     # TEST 2: dead cells with exactly 3 neighbours should come alive
+#     init_state2 = [
+#         [0,0,1],
+#         [0,1,1],
+#         [0,0,0]
+#     ]
+#     expected_next_state2 = [
+#         [0,1,1],
+#         [0,1,1],
+#         [0,0,0]
+#     ]
+#     actual_next_state2 = next_board_state(init_state2)
 
-print("STATE: ")
-render(test_state)
-print("NEXT STATE: ")
-next_board_state(test_state)
+#     if expected_next_state2 == actual_next_state2:
+#         print("PASSED 2")
+#     else:
+#         print("FAILED 2!")
+#         print("Expected:")
+#         print(expected_next_state2)
+#         print("Actual:")
+#         print(actual_next_state2)
+    
+#     # TEST 3: dead cells with less than 3 neighbours stay dead, 
+#     # live cells with less than 2 neighbours die
+#     init_state3 = [
+#         [1,0,0],
+#         [0,1,0],
+#         [0,0,0]
+#     ]
+#     expected_next_state3 = [
+#         [0,0,0],
+#         [0,0,0],
+#         [0,0,0]
+#     ]
+#     actual_next_state3 = next_board_state(init_state3)
 
+#     if expected_next_state3 == actual_next_state3:
+#         print("PASSED 3")
+#     else:
+#         print("FAILED 3!")
+#         print("Expected:")
+#         print(expected_next_state3)
+#         print("Actual:")
+#         print(actual_next_state3)
 
-# COOL STATES
+#     # TEST 4: live cells with 2 or 3 neighbours continue to live 
+#     init_state4 = [
+#         [1,1,0],
+#         [1,1,0],
+#         [0,0,0]
+#     ]
+#     expected_next_state4 = [
+#         [1,1,0],
+#         [1,1,0],
+#         [0,0,0]
+#     ]
+#     actual_next_state4 = next_board_state(init_state4)
+
+#     if expected_next_state4 == actual_next_state4:
+#         print("PASSED 4")
+#     else:
+#         print("FAILED 4!")
+#         print("Expected:")
+#         print(expected_next_state4)
+#         print("Actual:")
+#         print(actual_next_state4)
+
+#     # TEST 5: live cells with 24 or more neighbours die 
+#     init_state5 = [
+#         [1,1,0],
+#         [1,1,0],
+#         [1,0,0]
+#     ]
+#     expected_next_state5 = [
+#         [1,1,0],
+#         [0,0,0],
+#         [1,1,0]
+#     ]
+#     actual_next_state5 = next_board_state(init_state5)
+
+#     if expected_next_state5 == actual_next_state5:
+#         print("PASSED 5")
+#     else:
+#         print("FAILED 5!")
+#         print("Expected:")
+#         print(expected_next_state5)
+#         print("Actual:")
+#         print(actual_next_state5)
+
+# COOL STATES --------------------------------------------------------------------------------
+
 
 # STILL LIFE
 # Canoe state 7x7 : Creates a still life canoe
@@ -243,3 +359,16 @@ gun_state   = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,
                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
+
+
+    # Initialize the starting state (example: a simple glider pattern)
+glider =       [[0, 1, 0, 0, 0],
+                [0, 0, 1, 0, 0],
+                [1, 1, 1, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0]]
+
+
+# FUNCTION CALLS FOR TESTING -------------------------------------------------------------------------
+
+life(random_state(25,25))
