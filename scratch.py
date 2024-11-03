@@ -55,9 +55,9 @@ def next_board_state(state):
 
 
             if i == 0 and j == 0:
-                for x in range(0,2):
-                    for y in range(0,2):
-                        if state[i+y][j+x] == 1:
+                for x in range(j,j+2):
+                    for y in range(i,i+2):
+                        if state[y][x] == 1:
                             neighbour_count += 1
             
             if neighbour_count > 0:
@@ -70,8 +70,8 @@ def next_board_state(state):
 
 
 
-test = [[1,1],
-        [1,0]]
+test = [[1,0],
+        [0,1]]
 
 print("STATE: ")
 render(test)
@@ -79,13 +79,3 @@ print("NEIGHBOUR COUNT: ")
 next_board_state(test)
 
 
-
-
-            # CORNER CELLS
-            # # case 5: upper left corner
-            # elif i == 0 and j == 0:
-            #     for x in range(0,1):
-            #         for y in range(0,2):
-            #             if state[i+y][j+x] == 1:
-            #                 neighbour_count += 1
-            #                 msg = "upper left corner"
