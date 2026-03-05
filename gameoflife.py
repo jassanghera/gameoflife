@@ -157,7 +157,8 @@ def next_board_state(state):
 # runs infinite loop of states, printing each iteration
 def life(current_state):
 
-    while True:
+    i = 0
+    while i < 100:
         # clear the console for visualization
         os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -168,7 +169,9 @@ def life(current_state):
         current_state = next_board_state(current_state)
 
         # delay for readability
-        #time.sleep(1)
+        time.sleep(0.5)
+
+        i += 1
     
 
     
@@ -372,3 +375,4 @@ glider =       [[0, 1, 0, 0, 0],
 # FUNCTION CALLS FOR TESTING -------------------------------------------------------------------------
 
 life(random_state(25,25))
+# life(gun_state)
