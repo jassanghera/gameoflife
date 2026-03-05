@@ -11,19 +11,25 @@ from board import dead_state, random_state, render
 # runs infinite loop of states, printing each iteration
 def life(current_state):
 
-    i = 0
-    while i < 100:
+    generation = 0
 
-        os.system('cls' if os.name == 'nt' else 'clear')
+    try: 
+        while True:
 
-        print("Iteration: ", i)
-        render(current_state)
+            os.system('cls' if os.name == 'nt' else 'clear')
 
-        current_state = ns.next_board_state(current_state)
-        time.sleep(0.05)
+            print(f"Generation: {generation}\n")
+            render(current_state)
 
-        i += 1
-    
+            current_state = ns.next_board_state(current_state)
+            generation += 1
+
+            time.sleep(0.05)
+
+    except KeyboardInterrupt:
+        print(f"Game stopped at iteration {generation}.")
+        print("Thanks for playing Conway's Game of Life!")
+        
 
     
 
