@@ -2,7 +2,15 @@ import random
 import time
 import os
 
-print("hello world, i am life")
+NEIGHBOR_OFFSETS = [
+    (-1, -1), (-1, 0), (-1, 1),
+    ( 0, -1),          ( 0, 1),
+    ( 1, -1), ( 1, 0), ( 1, 1),
+]
+
+# -----------------------------------------------------------------------------
+# Board generation and rendering
+# -----------------------------------------------------------------------------
 
 # dead_state should accept integer width and height
     #output: 2D grid as list of lists with all entries defaulted to 0
@@ -41,11 +49,18 @@ def random_state(width, height):
 
 # this function prints the board neatly in the terminal
 def render(state):
+    # Choose your characters
+    # ALIVE = "█"   # or "⬛"
+    ALIVE = "⬛"
+    DEAD  = " "   # blank space
 
-    for i in range(len(state)):
-        print(*state[i])
-    print("\n")
+    for row in state:
+        line = "".join(ALIVE if cell else DEAD for cell in row)
+        print(line)
 
+# -----------------------------------------------------------------------------
+# Game of Life logic
+# -----------------------------------------------------------------------------
 
 # a function to calculate the next state of the board given an existing board
 def next_board_state(state):
@@ -88,7 +103,7 @@ def next_board_state(state):
                             neighbour_count += 1
 
             # case 4: cell in last row, exclude bottom left and right corners
-            elif i == row_index and j != 0 and j != row_index:
+            elif i == row_index and j != 0 and j != col_index:
                 for x in range(j-1,j+2):
                     for y in range(i-1,i+1):
                         if state[y][x] == 1:
@@ -159,17 +174,14 @@ def life(current_state):
 
     i = 0
     while i < 100:
-        # clear the console for visualization
+
         os.system('cls' if os.name == 'nt' else 'clear')
 
-        # print the current state
+        print("Iteration: ", i)
         render(current_state)
 
-        # get the next state
         current_state = next_board_state(current_state)
-
-        # delay for readability
-        time.sleep(0.5)
+        time.sleep(0.05)
 
         i += 1
     
@@ -374,5 +386,8 @@ glider =       [[0, 1, 0, 0, 0],
 
 # FUNCTION CALLS FOR TESTING -------------------------------------------------------------------------
 
-life(random_state(25,25))
+life(random_state(20,20))
+# life(random_state(25,25))
+# life(random_state(40,40))
 # life(gun_state)
+# life(glider)
