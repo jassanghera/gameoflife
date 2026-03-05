@@ -20,22 +20,16 @@ def dead_state(width, height):
 
 # this function generates a random board with live cells = 1 and dead cells = 0
 # input a default board (with all cells set to 0), output the randomized board
-def random_state(width, height):
+def random_state(width, height, p_alive=0.30):
+
+    if not (0.0 <= p_alive <= 1.0):
+        raise ValueError("p_alive must be between 0.0 and 1.0")
+    
 
     state = dead_state(width, height)
-
     for i in range(height):
         for j in range(width):
-
-            random_number = random.random()
-
-            if random_number >= 0.5:
-                cell_state = 0
-            else:
-                cell_state = 1
-            
-            state[i][j] = cell_state
-    
+            state[i][j] = 1 if random.random() < p_alive else 0
     return state
 
 

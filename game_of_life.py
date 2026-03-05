@@ -1,4 +1,3 @@
-import random
 import time
 import os
 import next_state as ns
@@ -28,211 +27,104 @@ def life(current_state):
 
     except KeyboardInterrupt:
         print(f"Game stopped at iteration {generation}.")
-        print("Thanks for playing Conway's Game of Life!")
+        print("Thanks for playing Conway's Game of Life!\n")
         
 
+# -----------------------------------------------------------------------------
+# Pattern Loader
+# -----------------------------------------------------------------------------
+
+# represent patterns as a list of live cell coordinates (row, col) relative to an origin (0,0)
+PATTERNS = {
+    # Classic 3x3 glider (moves diagonally)
+    "glider": [
+        (0, 1),
+        (1, 2),
+        (2, 0), (2, 1), (2, 2),
+    ],
+    # Simple oscillator (period 2)
+    "blinker": [
+        (0, 0), (0, 1), (0, 2),
+    ],
+    # Another oscillator (period 2)
+    "toad": [
+        (0,1), (0,2), (0,3),
+        (1,0), (1,1), (1,2),
+    ],
+    # still life, doesnt change
+    "block": [
+        (0,0), (0,1),
+        (1,0), (1,1)
+    ],
+}
+
+def stamp_pattern(state, cells, top, left):
+    """
+    Turn on cells in 'state' at positions offset by (top, left), 
+    ignoring any cells that would fall out of bounds (bounded board)
+    """
+
+    height = len(state)
+    width = len(state[0])
+
+    for dr, dc in cells:
+        r = top + dr
+        c = left + dc
+        if 0 <= r < height and 0 <= c < width:
+            state[r][c] = 1
+
+def board_with_pattern(width, height, pattern_name):
+    """Create a new board with a pattern centered on it."""
+    state = dead_state(width, height)
+
+    cells = PATTERNS.get(pattern_name)
+    if cells is None:
+        raise ValueError(f"Unknown pattern: {pattern_name}")
+
+    # Calculate top-left corner to center the pattern
+    max_r = max(r for r, _ in cells)
+    max_c = max(c for _, c in cells)
+    pattern_height = max_r + 1
+    pattern_width = max_c + 1
+
+    top = (height - pattern_height) // 2
+    left = (width - pattern_width) // 2
+
+    stamp_pattern(state, cells, top, left)
+    return state
+
+def choose_pattern():
+    options = ["random"] + list(PATTERNS.keys())
+    print("Choose a starting configuration:")
+    for i, name in enumerate(options, start=1):
+        print(f'{i}. {name}')
     
+    choice = input("Enter the number of your choice (or press Enter for Glider): ").strip()
 
-
-# UNIT TESTS ---------------------------------------------------------------------------------
-
-# if __name__ == "__main__":
-
-#     # TEST 1: dead cells with no live neighbours should stay dead
-#     init_state1 = [
-#         [0,0,0],
-#         [0,0,0],
-#         [0,0,0]
-#     ]
-#     expected_next_state1 = [
-#         [0,0,0],
-#         [0,0,0],
-#         [0,0,0]
-#     ]
-
-#     actual_next_state1 = next_board_state(init_state1)
-
-#     if expected_next_state1 == actual_next_state1:
-#         print("PASSED 1")
-#     else:
-#         print("FAILED 1")
-#         print("Expected: ")
-#         print(expected_next_state1)
-#         print("Actual:")
-#         print(actual_next_state1)
-
+    if choice == "":
+        return "glider"  # default pattern
     
-#     # TEST 2: dead cells with exactly 3 neighbours should come alive
-#     init_state2 = [
-#         [0,0,1],
-#         [0,1,1],
-#         [0,0,0]
-#     ]
-#     expected_next_state2 = [
-#         [0,1,1],
-#         [0,1,1],
-#         [0,0,0]
-#     ]
-#     actual_next_state2 = next_board_state(init_state2)
+    if choice.isdigit():
+        index = int(choice)
+        if 1 <= index <= len(options):
+            return options[index - 1]
+        
+    print("Invalid choice, defaulting to glider.")
+    return "glider"
 
-#     if expected_next_state2 == actual_next_state2:
-#         print("PASSED 2")
-#     else:
-#         print("FAILED 2!")
-#         print("Expected:")
-#         print(expected_next_state2)
-#         print("Actual:")
-#         print(actual_next_state2)
-    
-#     # TEST 3: dead cells with less than 3 neighbours stay dead, 
-#     # live cells with less than 2 neighbours die
-#     init_state3 = [
-#         [1,0,0],
-#         [0,1,0],
-#         [0,0,0]
-#     ]
-#     expected_next_state3 = [
-#         [0,0,0],
-#         [0,0,0],
-#         [0,0,0]
-#     ]
-#     actual_next_state3 = next_board_state(init_state3)
+def make_initial_state(width, height, selection):
+    if selection == "random":
+        return random_state(width, height)
+    return board_with_pattern(width, height, selection)
 
-#     if expected_next_state3 == actual_next_state3:
-#         print("PASSED 3")
-#     else:
-#         print("FAILED 3!")
-#         print("Expected:")
-#         print(expected_next_state3)
-#         print("Actual:")
-#         print(actual_next_state3)
+# -----------------------------------------------------------------------------
+# main function
+# -----------------------------------------------------------------------------
 
-#     # TEST 4: live cells with 2 or 3 neighbours continue to live 
-#     init_state4 = [
-#         [1,1,0],
-#         [1,1,0],
-#         [0,0,0]
-#     ]
-#     expected_next_state4 = [
-#         [1,1,0],
-#         [1,1,0],
-#         [0,0,0]
-#     ]
-#     actual_next_state4 = next_board_state(init_state4)
+if __name__ == "__main__":
+    width, height = 25, 25
 
-#     if expected_next_state4 == actual_next_state4:
-#         print("PASSED 4")
-#     else:
-#         print("FAILED 4!")
-#         print("Expected:")
-#         print(expected_next_state4)
-#         print("Actual:")
-#         print(actual_next_state4)
+    selection = choose_pattern()
+    state = make_initial_state(width, height, selection)
 
-#     # TEST 5: live cells with 24 or more neighbours die 
-#     init_state5 = [
-#         [1,1,0],
-#         [1,1,0],
-#         [1,0,0]
-#     ]
-#     expected_next_state5 = [
-#         [1,1,0],
-#         [0,0,0],
-#         [1,1,0]
-#     ]
-#     actual_next_state5 = next_board_state(init_state5)
-
-#     if expected_next_state5 == actual_next_state5:
-#         print("PASSED 5")
-#     else:
-#         print("FAILED 5!")
-#         print("Expected:")
-#         print(expected_next_state5)
-#         print("Actual:")
-#         print(actual_next_state5)
-
-# COOL STATES --------------------------------------------------------------------------------
-
-
-# STILL LIFE
-# Canoe state 7x7 : Creates a still life canoe
-canoe_state = [[0,0,0,0,0,0,0],
-               [0,0,0,0,1,1,0],
-               [0,0,0,0,0,1,0],
-               [0,0,0,0,1,0,0],
-               [0,1,0,1,0,0,0],
-               [0,1,1,0,0,0,0],
-               [0,0,0,0,0,0,0]]
-
-# Block state 4x4 : is block
-block_state = [[0,0,0,0],
-               [0,1,1,0],
-               [0,1,1,0],
-               [0,0,0,0]]
-
-# boat state 5x5 : not better than a canoe
-boat_state = [[0,0,0,0,0],
-              [0,1,1,0,0],
-              [0,1,0,1,0],
-              [0,0,1,0,0],
-              [0,0,0,0,0]]
-
-# Oscillators
-
-# Beacon state : wee woo
-beacon_state = [[0,0,0,0,0,0],
-                [0,1,1,0,0,0],
-                [0,1,1,0,0,0],
-                [0,0,0,1,1,0],
-                [0,0,0,1,1,0],
-                [0,0,0,0,0,0]]
-
-# Toad state : ribbit
-toad_state =   [[0,0,0,0,0,0,],
-                [0,0,0,1,0,0,],
-                [0,1,0,0,1,0,],
-                [0,1,0,0,1,0,],
-                [0,0,1,0,0,0,],
-                [0,0,0,0,0,0,]]
-
-# Gun states
-
-# GUN GUN GUN GUN GUN GUN GUN GUN PEW PEW BOOOOOOOOOOOOM
-gun_state   = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0],
-               [0,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,1,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
-
-
-    # Initialize the starting state (example: a simple glider pattern)
-glider =       [[0, 1, 0, 0, 0],
-                [0, 0, 1, 0, 0],
-                [1, 1, 1, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0]]
-
-
-# FUNCTION CALLS FOR TESTING -------------------------------------------------------------------------
-
-life(random_state(20,20))
-# life(random_state(25,25))
-# life(random_state(40,40))
-# life(gun_state)
-# life(glider)
+    life(state)
