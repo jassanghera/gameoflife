@@ -99,18 +99,18 @@ def choose_pattern():
     for i, name in enumerate(options, start=1):
         print(f'{i}. {name}')
     
-    choice = input("Enter the number of your choice (or press Enter for Glider): ").strip()
+    choice = input("Enter the number of your choice (or press Enter for random board): ").strip()
 
     if choice == "":
-        return "glider"  # default pattern
+        return "random"  # default pattern
     
     if choice.isdigit():
         index = int(choice)
         if 1 <= index <= len(options):
             return options[index - 1]
         
-    print("Invalid choice, defaulting to glider.")
-    return "glider"
+    print("Invalid choice, defaulting to random.")
+    return "random"
 
 def make_initial_state(width, height, selection):
     if selection == "random":
