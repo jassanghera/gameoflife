@@ -1,5 +1,5 @@
 import pygame
-from board import dead_state, random_state
+from board import random_state
 from next_state import next_board_state
 from patterns import board_with_pattern, pattern_names
 
@@ -45,20 +45,24 @@ def main():
         now = pygame.time.get_ticks()
 
         # events
-        for event in pygame.event.get():
+        for event in pygame.event.get():            
             if event.type == pygame.QUIT:
                 done = True
 
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_ESCAPE:
+                    done = True
+
+                elif event.key == pygame.K_SPACE:
                     running = not running # toggle run/pause
 
                 elif event.key == pygame.K_RIGHT:
-                    state = next_board_state(state) # step forward one gen while paused
+                    state = next_board_state(state) # step forward one gen
                     generation += 1
 
                 elif event.key == pygame.K_r:
                     generation = 0
+                    last_step_time = pygame.time.get_ticks()
                     if pattern_name == "random":
                         state = random_state(grid_width, grid_height, p_alive=0.30) # reset to new random board
                     else:
@@ -67,12 +71,14 @@ def main():
                 elif event.key == pygame.K_0:
                     pattern_name = "random"
                     generation = 0
+                    last_step_time = pygame.time.get_ticks()
                     state = random_state(grid_width, grid_height, p_alive=0.3)
 
                 elif event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4]:
                     index = event.key - pygame.K_1
                     pattern_name = pattern_names()[index]
                     generation = 0
+                    last_step_time = pygame.time.get_ticks()
                     state = board_with_pattern(grid_width, grid_height, pattern_name)
         
         # update state if running and enough time has passed
@@ -93,25 +99,3 @@ def main():
 if __name__ == "__main__":
     main()
                 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    screen.fill((0, 0, 0)) # fill the screen with black
-    
-    font = pygame.font.SysFont('Times New Roman', 30)
-    text = font.render('Hello, World!', True, (255, 255, 255))
-
-    screen.blit(text, (200, 100))   # draw the text at position (200, 100)
-    pygame.display.flip()
-

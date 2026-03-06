@@ -1,6 +1,5 @@
 import time
 import os
-import next_state as ns
 from board import random_state, render
 from next_state import next_board_state
 from patterns import board_with_pattern, pattern_names
@@ -22,7 +21,7 @@ def life(current_state):
             print(f"Generation: {generation}\n")
             render(current_state)
 
-            current_state = ns.next_board_state(current_state)
+            current_state = next_board_state(current_state)
             generation += 1
 
             time.sleep(0.05)
@@ -65,10 +64,13 @@ def make_initial_state(width, height, selection):
 # main function
 # -----------------------------------------------------------------------------
 
-if __name__ == "__main__":
+def main():
     width, height = 25, 25
 
     selection = choose_pattern()
     state = make_initial_state(width, height, selection)
 
     life(state)
+
+if __name__ == "__main__":
+    main()
