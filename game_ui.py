@@ -3,21 +3,66 @@ from board import random_state
 from next_state import next_board_state
 from patterns import board_with_pattern, pattern_names
 
-def draw_state(screen, state, cell_size, header_height):
-    """ loops over state[r][c] and draws a cell if it's alive, otherwise leaves it blank. """
-    screen.fill((0, 0, 0)) # fill the screen with black
+def draw_grid(screen, grid_width, grid_height, cell_size, header_height):
+    """draw grid lines"""
 
-    for r, row in enumerate(state):
+    GRID_COLOUR = (240, 240, 240)
+
+    # vertical lines 
+    for x in range(grid_width + 1):
+        px = x * cell_size
+        pygame.draw.line(
+            screen, 
+            GRID_COLOUR,
+            (px, header_height), 
+            (px, header_height + grid_height * cell_size),
+            1
+        )    
+    
+    # horizontal lines
+    for y in range(grid_height + 1):
+        py = header_height + y * cell_size
+        pygame.draw.line(
+            screen,
+            GRID_COLOUR,
+            (0, py),
+            (grid_width * cell_size, py),
+            1
+        )
+
+
+def draw_state(screen, current_state, preview_state, cell_size, header_height):
+    """ loops over state[r][c] and draws a cell if it's alive or a faded cell if it will be alive next generation. """
+
+    # ALIVE_COLOUR = (64, 224, 208) # blue
+    # PREVIEW_COLOUR = (201, 255, 250)
+
+    ALIVE_COLOUR = (178, 102, 255) # purple
+    PREVIEW_COLOUR = (239, 239, 255)
+
+    screen.fill((255, 255, 255)) # fill the screen with white
+    # screen.fill((0, 0, 0)) # fill screen with black
+
+    for r, row in enumerate(current_state):
         for c, cell in enumerate(row):
+            x = c * cell_size
+            y = header_height + r * cell_size
+            rect = pygame.Rect(
+                x, 
+                y, 
+                cell_size - 1, 
+                cell_size - 1
+            )
+
             if cell == 1:
                 # draw a white square at the appropriate position
-                rect = pygame.Rect(
-                    c * cell_size, 
-                    header_height + r * cell_size, 
-                    cell_size, 
-                    cell_size
-                )
-                pygame.draw.rect(screen, (255, 255, 255), rect)
+                pygame.draw.rect(screen, ALIVE_COLOUR, rect)
+            
+            elif preview_state[r][c] == 1:
+                # draw a faded preview of the next live cell
+                pygame.draw.rect(screen, PREVIEW_COLOUR, rect)
+    
+    
 
 def draw_header(screen, font, pattern_name, running, generation):
     """Draw status text at top of window."""
@@ -26,7 +71,7 @@ def draw_header(screen, font, pattern_name, running, generation):
     line1 = f"Pattern: {pattern_name} | Status: {status} | Generation: {generation}"
     line2 = f"Controls: Space=Run/Pause Right=Step R=Reset 0-4=Pattern Esc=Quit"
 
-    text1 = font.render(line1, True, (255, 255, 255))
+    text1 = font.render(line1, True, (180, 180, 180))
     text2 = font.render(line2, True, (180, 180, 180))
 
     screen.blit(text1, (10, 10))
@@ -107,8 +152,12 @@ def main():
             generation += 1
             last_step_time = now
 
+        # preview next state
+        preview_state = next_board_state(state)
+        
         # draw current state
-        draw_state(screen, state, cell_size, header_height)
+        draw_state(screen, state, preview_state, cell_size, header_height)
+        # draw_grid(screen, grid_width, grid_height, cell_size, header_height)
         draw_header(screen, font, pattern_name, running, generation)
         pygame.display.flip()
 
