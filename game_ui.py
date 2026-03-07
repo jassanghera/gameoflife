@@ -118,10 +118,12 @@ def main():
     grid_height = 60
     cell_size = 10  # cell_size (pixels per cell)
     header_height = 40
+    footer_height = 20
     sidebar_width = 200
+    right_padding = 20
 
-    window_width = sidebar_width + grid_width * cell_size
-    window_height = header_height + grid_height * cell_size
+    window_width = sidebar_width + grid_width * cell_size + right_padding
+    window_height = header_height + grid_height * cell_size + footer_height
 
     screen = pygame.display.set_mode((window_width, window_height))
     pygame.display.set_caption("Conway's Game of Life")
