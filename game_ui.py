@@ -31,17 +31,31 @@ def draw_grid(screen, grid_width, grid_height, cell_size, header_height):
         )
 
 
-def draw_state(screen, current_state, preview_state, cell_size, header_height):
+def draw_state(screen, current_state, preview_state, cell_size, header_height, dark_mode):
     """ loops over state[r][c] and draws a cell if it's alive or a faded cell if it will be alive next generation. """
 
-    # ALIVE_COLOUR = (64, 224, 208) # blue
-    # PREVIEW_COLOUR = (201, 255, 250)
+    ALIVE_COLOUR = (64, 224, 208) # blue
+    PREVIEW_COLOUR = (201, 255, 250)
 
-    ALIVE_COLOUR = (178, 102, 255) # purple
-    PREVIEW_COLOUR = (239, 239, 255)
+    DARK_MODE_BACKGROUND = (60, 60, 60) # Grey
+    DARK_MODE_PREVIEW = (110, 9, 125) # Dark Purple
+    DARK_MODE_ALIVE = (207,79,227) # Purple
 
-    screen.fill((255, 255, 255)) # fill the screen with white
-    # screen.fill((0, 0, 0)) # fill screen with black
+    LIGHT_MODE_BACKGROUND = (255, 255, 255)
+    LIGHT_MODE_PREVIEW = (201, 255, 250)
+    LIGHT_MODE_ALIVE = (64, 224, 208)
+
+    if dark_mode:
+        ALIVE_COLOUR = DARK_MODE_ALIVE
+        PREVIEW_COLOUR = DARK_MODE_PREVIEW
+        BACKGROUND = DARK_MODE_BACKGROUND
+    else:
+         ALIVE_COLOUR = LIGHT_MODE_ALIVE
+         PREVIEW_COLOUR = LIGHT_MODE_PREVIEW
+         BACKGROUND = LIGHT_MODE_BACKGROUND
+    
+    # screen.fill((255, 255, 255)) # fill the screen with white
+    screen.fill(BACKGROUND) # fill screen with black
 
     for r, row in enumerate(current_state):
         for c, cell in enumerate(row):
@@ -69,7 +83,7 @@ def draw_header(screen, font, pattern_name, running, generation):
     status = "Running" if running else "Paused"
 
     line1 = f"Pattern: {pattern_name} | Status: {status} | Generation: {generation}"
-    line2 = f"Controls: Space=Run/Pause Right=Step R=Reset 0-4=Pattern Esc=Quit"
+    line2 = f"Controls: Space=Run/Pause Right=Step R=Reset 0-4=Pattern Esc=Quit d=Toggle Dark Mode"
 
     text1 = font.render(line1, True, (180, 180, 180))
     text2 = font.render(line2, True, (180, 180, 180))
@@ -100,6 +114,7 @@ def main():
     step_ms = 100 # time between generations when running (ms)
     last_step_time = 0
     generation = 0
+    dark_mode = False
 
     pattern_name = "random" # default
     state = random_state(grid_width, grid_height, p_alive=0.3)
@@ -120,6 +135,9 @@ def main():
 
                 elif event.key == pygame.K_SPACE:
                     running = not running # toggle run/pause
+
+                elif event.key == pygame.K_d:
+                    dark_mode = not dark_mode
 
                 elif event.key == pygame.K_RIGHT:
                     state = next_board_state(state) # step forward one gen
@@ -156,7 +174,7 @@ def main():
         preview_state = next_board_state(state)
         
         # draw current state
-        draw_state(screen, state, preview_state, cell_size, header_height)
+        draw_state(screen, state, preview_state, cell_size, header_height, dark_mode)
         # draw_grid(screen, grid_width, grid_height, cell_size, header_height)
         draw_header(screen, font, pattern_name, running, generation)
         pygame.display.flip()
