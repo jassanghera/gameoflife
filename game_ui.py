@@ -162,6 +162,12 @@ def main():
                     state = next_board_state(state) # step forward one gen
                     generation += 1
 
+                elif event.key == pygame.K_c:
+                    state = [[0 for _ in range(grid_width)] for _ in range(grid_height)] # clear board
+                    generation = 0
+                    last_step_time = pygame.time.get_ticks()
+                    running = False # pause when clearing
+
                 elif event.key == pygame.K_r:
                     generation = 0
                     last_step_time = pygame.time.get_ticks()
@@ -169,6 +175,7 @@ def main():
                         state = random_state(grid_width, grid_height, p_alive=0.30) # reset to new random board
                     else:
                         state = board_with_pattern(grid_width, grid_height, pattern_name) # reset to original pattern
+                    running = False # pause when resetting
 
                 elif event.key == pygame.K_0:
                     pattern_name = "random"
